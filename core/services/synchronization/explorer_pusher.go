@@ -17,8 +17,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-// StatsPusher polls for events and pushes them via a WebSocketClient
-type StatsPusher struct {
+// ExplorerPusher polls for events and pushes them via a WebSocketClient
+type ExplorerPusher struct {
 	ORM            *orm.ORM
 	WSClient       WebSocketClient
 	Period         time.Duration
@@ -33,8 +33,8 @@ const (
 	updateCallbackName = "sync:run_after_update"
 )
 
-// NewStatsPusher returns a new event queuer
-func NewStatsPusher(orm *orm.ORM, url *url.URL, accessKey, secret string, afters ...utils.Afterer) *StatsPusher {
+// NewExplorerPusher returns a new event queuer
+func NewExplorerPusher(orm *orm.ORM, url *url.URL, accessKey, secret string, afters ...utils.Afterer) *ExplorerPusher {
 	var clock utils.Afterer
 	if len(afters) == 0 {
 		clock = utils.Clock{}
@@ -42,7 +42,7 @@ func NewStatsPusher(orm *orm.ORM, url *url.URL, accessKey, secret string, afters
 		clock = afters[0]
 	}
 
-	sp := &StatsPusher{
+	ep := &ExplorerPusher{
 		ORM:      orm,
 		WSClient: noopWebSocketClient{},
 		Period:   30 * time.Minute,
@@ -55,44 +55,44 @@ func NewStatsPusher(orm *orm.ORM, url *url.URL, accessKey, secret string, afters
 	}
 
 	if url != nil {
-		sp.WSClient = NewWebSocketClient(url, accessKey, secret)
+		ep.WSClient = NewWebSocketClient(url, accessKey, secret)
 		gormCallbacksMutex.Lock()
-		orm.DB.Callback().Create().Register(createCallbackName, createSyncEventWithStatsPusher(sp))
-		orm.DB.Callback().Update().Register(updateCallbackName, createSyncEventWithStatsPusher(sp))
+		orm.DB.Callback().Create().Register(createCallbackName, createSyncEventWithExplorerPusher(ep))
+		orm.DB.Callback().Update().Register(updateCallbackName, createSyncEventWithExplorerPusher(ep))
 		gormCallbacksMutex.Unlock()
 	}
-	return sp
+	return ep
 }
 
 // Start starts the stats pusher
-func (sp *StatsPusher) Start() error {
-	err := sp.WSClient.Start()
+func (ep *ExplorerPusher) Start() error {
+	err := ep.WSClient.Start()
 	if err != nil {
 		return err
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	sp.cancel = cancel
-	go sp.eventLoop(ctx)
+	ep.cancel = cancel
+	go ep.eventLoop(ctx)
 	return nil
 }
 
 // Close shuts down the stats pusher
-func (sp *StatsPusher) Close() error {
-	if sp.cancel != nil {
-		sp.cancel()
+func (ep *ExplorerPusher) Close() error {
+	if ep.cancel != nil {
+		ep.cancel()
 	}
 	gormCallbacksMutex.Lock()
-	callbacks := sp.ORM.DB.Callback()
+	callbacks := ep.ORM.DB.Callback()
 	callbacks.Create().Remove(createCallbackName)
 	callbacks.Update().Remove(updateCallbackName)
 	gormCallbacksMutex.Unlock()
-	return sp.WSClient.Close()
+	return ep.WSClient.Close()
 }
 
 // PushNow wakes up the stats pusher, asking it to push all queued events immediately.
-func (sp *StatsPusher) PushNow() {
+func (ep *ExplorerPusher) PushNow() {
 	select {
-	case sp.waker <- struct{}{}:
+	case ep.waker <- struct{}{}:
 	default:
 	}
 }
@@ -101,35 +101,36 @@ type response struct {
 	Status int `json:"status"`
 }
 
-func (sp *StatsPusher) eventLoop(parentCtx context.Context) {
+func (ep *ExplorerPusher) eventLoop(parentCtx context.Context) {
+	logger.Debugw("Entered ExplorerPusher event loop")
 	for {
-		err := sp.pusherLoop(parentCtx)
+		err := ep.pusherLoop(parentCtx)
 		if err == nil {
 			return
 		}
 
-		duration := sp.backoffSleeper.Duration()
+		duration := ep.backoffSleeper.Duration()
 		logger.Warnw("Failure during event synchronization", "error", err.Error(), "sleep_duration", duration)
 
 		select {
 		case <-parentCtx.Done():
 			return
-		case <-sp.clock.After(duration):
+		case <-ep.clock.After(duration):
 			continue
 		}
 	}
 }
 
-func (sp *StatsPusher) pusherLoop(parentCtx context.Context) error {
+func (ep *ExplorerPusher) pusherLoop(parentCtx context.Context) error {
 	for {
 		select {
-		case <-sp.waker:
-			err := sp.pushEvents()
+		case <-ep.waker:
+			err := ep.pushEvents()
 			if err != nil {
 				return err
 			}
-		case <-sp.clock.After(sp.Period):
-			err := sp.pushEvents()
+		case <-ep.clock.After(ep.Period):
+			err := ep.pushEvents()
 			if err != nil {
 				return err
 			}
@@ -139,23 +140,23 @@ func (sp *StatsPusher) pusherLoop(parentCtx context.Context) error {
 	}
 }
 
-func (sp *StatsPusher) pushEvents() error {
-	err := sp.ORM.AllSyncEvents(func(event *models.SyncEvent) error {
-		return sp.syncEvent(event)
+func (ep *ExplorerPusher) pushEvents() error {
+	err := ep.ORM.AllSyncEvents(func(event *models.SyncEvent) error {
+		return ep.syncEvent(event)
 	})
 
 	if err != nil {
 		return errors.Wrap(err, "pushEvents#AllSyncEvents failed")
 	}
 
-	sp.backoffSleeper.Reset()
+	ep.backoffSleeper.Reset()
 	return nil
 }
 
-func (sp *StatsPusher) syncEvent(event *models.SyncEvent) error {
-	sp.WSClient.Send([]byte(event.Body))
+func (ep *ExplorerPusher) syncEvent(event *models.SyncEvent) error {
+	ep.WSClient.Send([]byte(event.Body))
 
-	message, err := sp.WSClient.Receive()
+	message, err := ep.WSClient.Receive()
 	if err != nil {
 		return errors.Wrap(err, "syncEvent#WSClient.Receive failed")
 	}
@@ -170,7 +171,7 @@ func (sp *StatsPusher) syncEvent(event *models.SyncEvent) error {
 		return errors.New("event not created")
 	}
 
-	err = sp.ORM.DB.Delete(event).Error
+	err = ep.ORM.DB.Delete(event).Error
 	if err != nil {
 		return errors.Wrap(err, "syncEvent#DB.Delete failed")
 	}
@@ -178,7 +179,7 @@ func (sp *StatsPusher) syncEvent(event *models.SyncEvent) error {
 	return nil
 }
 
-func createSyncEventWithStatsPusher(sp *StatsPusher) func(*gorm.Scope) {
+func createSyncEventWithExplorerPusher(ep *ExplorerPusher) func(*gorm.Scope) {
 	return func(scope *gorm.Scope) {
 		if scope.HasError() {
 			return
@@ -210,7 +211,7 @@ func createSyncEventWithStatsPusher(sp *StatsPusher) func(*gorm.Scope) {
 			return
 		}
 
-		sp.PushNow()
+		ep.PushNow()
 	}
 }
 

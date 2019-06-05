@@ -12,14 +12,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStatsPusher(t *testing.T) {
+func TestExplorerPusher(t *testing.T) {
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 
 	wsserver, wscleanup := cltest.NewEventWebSocketServer(t)
 	defer wscleanup()
 
-	pusher := synchronization.NewStatsPusher(store.ORM, wsserver.URL, "", "")
+	pusher := synchronization.NewExplorerPusher(store.ORM, wsserver.URL, "", "")
 	pusher.Start()
 	defer pusher.Close()
 
@@ -49,7 +49,7 @@ func TestStatsPusher(t *testing.T) {
 	cltest.WaitForSyncEventCount(t, store.ORM, 0)
 }
 
-func TestStatsPusher_ClockTrigger(t *testing.T) {
+func TestExplorerPusher_ClockTrigger(t *testing.T) {
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 
@@ -57,7 +57,7 @@ func TestStatsPusher_ClockTrigger(t *testing.T) {
 	defer wscleanup()
 
 	clock := cltest.NewTriggerClock(t)
-	pusher := synchronization.NewStatsPusher(store.ORM, wsserver.URL, "", "", clock)
+	pusher := synchronization.NewExplorerPusher(store.ORM, wsserver.URL, "", "", clock)
 	pusher.Start()
 	defer pusher.Close()
 
@@ -73,7 +73,7 @@ func TestStatsPusher_ClockTrigger(t *testing.T) {
 	cltest.WaitForSyncEventCount(t, store.ORM, 0)
 }
 
-func TestStatsPusher_NoAckLeavesEvent(t *testing.T) {
+func TestExplorerPusher_NoAckLeavesEvent(t *testing.T) {
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 
@@ -81,7 +81,7 @@ func TestStatsPusher_NoAckLeavesEvent(t *testing.T) {
 	defer wscleanup()
 
 	clock := cltest.NewTriggerClock(t)
-	pusher := synchronization.NewStatsPusher(store.ORM, wsserver.URL, "", "", clock)
+	pusher := synchronization.NewExplorerPusher(store.ORM, wsserver.URL, "", "", clock)
 	pusher.Start()
 	defer pusher.Close()
 
@@ -99,7 +99,7 @@ func TestStatsPusher_NoAckLeavesEvent(t *testing.T) {
 	cltest.AssertSyncEventCountStays(t, store.ORM, 1)
 }
 
-func TestStatsPusher_BadSyncLeavesEvent(t *testing.T) {
+func TestExplorerPusher_BadSyncLeavesEvent(t *testing.T) {
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 
@@ -107,7 +107,7 @@ func TestStatsPusher_BadSyncLeavesEvent(t *testing.T) {
 	defer wscleanup()
 
 	clock := cltest.NewTriggerClock(t)
-	pusher := synchronization.NewStatsPusher(store.ORM, wsserver.URL, "", "", clock)
+	pusher := synchronization.NewExplorerPusher(store.ORM, wsserver.URL, "", "", clock)
 	pusher.Start()
 	defer pusher.Close()
 

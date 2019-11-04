@@ -8,7 +8,10 @@ import (
 	"time"
 
 	"chainlink/core/internal/cltest"
+	"chainlink/core/store/models"
 	"chainlink/core/store/orm"
+
+	"github.com/pkg/errors"
 
 	"github.com/stretchr/testify/require"
 )
@@ -85,4 +88,75 @@ func TestPostgresLockingStrategy_Lock(t *testing.T) {
 	require.NoError(t, ls.Unlock())
 	require.NoError(t, ls2.Lock(delay), "should get exclusive lock")
 	require.NoError(t, ls2.Unlock())
+}
+
+func TestPostgresLockingStrategy_WhenLostIsReacquired(t *testing.T) {
+	t.Parallel()
+	store, cleanup := cltest.NewStore(t)
+	defer cleanup()
+
+	if store.Config.DatabaseURL() == "" {
+		t.Skip("No postgres DatabaseURL set.")
+	}
+
+	err := store.ORM.LockingStrategy().Unlock()
+	require.NoError(t, err)
+
+	var jobs []models.JobSpec
+	err = store.ORM.DB.Find(&jobs).Error
+	require.NoError(t, err)
+
+	lock2, err := orm.NewLockingStrategy("postgres", store.Config.DatabaseURL())
+	require.NoError(t, err)
+	err = lock2.Lock(delay)
+	require.Equal(t, errors.Cause(err), orm.ErrNoAdvisoryLock)
+}
+
+func TestPostgresLockingStrategy_CanBeReacquiredByNewNodeAfterDisconnect(t *testing.T) {
+	t.Parallel()
+	store, cleanup := cltest.NewStore(t)
+	defer cleanup()
+
+	if store.Config.DatabaseURL() == "" {
+		t.Skip("No postgres DatabaseURL set.")
+	}
+
+	store.ORM.DB.DB().Close()
+
+	var jobs []models.JobSpec
+	err := store.ORM.DB.Find(&jobs).Error
+	require.Error(t, err)
+
+	cfg := cltest.NewTestConfig(t)
+	cfg.Config = store.Config
+
+	store2, cleanup2 := cltest.NewStoreWithConfig(cfg)
+	defer cleanup2()
+
+	err = store2.ORM.DB.Find(&jobs).Error
+	require.NoError(t, err)
+}
+
+func TestPostgresLockingStrategy_WhenReacquiredOriginalNodeErrors(t *testing.T) {
+	t.Parallel()
+	store, cleanup := cltest.NewStore(t)
+	defer cleanup()
+
+	if store.Config.DatabaseURL() == "" {
+		t.Skip("No postgres DatabaseURL set.")
+	}
+
+	err := store.ORM.LockingStrategy().Unlock()
+	require.NoError(t, err)
+
+	lock, err := orm.NewLockingStrategy("postgres", store.Config.DatabaseURL())
+	require.NoError(t, err)
+	defer lock.Unlock()
+
+	err = lock.Lock(1 * time.Second)
+	require.NoError(t, err)
+
+	var jobs []models.JobSpec
+	err = store.ORM.DB.Find(&jobs).Error
+	require.Equal(t, errors.Cause(err), orm.ErrNoAdvisoryLock)
 }

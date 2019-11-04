@@ -44,10 +44,16 @@ const (
 
 // ORM contains the database object used by Chainlink.
 type ORM struct {
-	DB              *gorm.DB
-	lockingStrategy LockingStrategy
-	dialectName     DialectName
+	DB                 *gorm.DB
+	lockingStrategy    LockingStrategy
+	acquireLockTimeout time.Duration
+	dialectName        DialectName
 }
+
+var (
+	ErrNoAdvisoryLock    = errors.New("can't acquire advisory lock")
+	ErrReleaseLockFailed = errors.New("advisory lock release failed")
+)
 
 // NewORM initializes a new database file at the configured uri.
 func NewORM(uri string, timeout time.Duration) (*ORM, error) {
@@ -64,7 +70,7 @@ func NewORM(uri string, timeout time.Duration) (*ORM, error) {
 	logger.Infof("Locking %v for exclusive access with %v timeout", dialect, displayTimeout(timeout))
 	err = lockingStrategy.Lock(timeout)
 	if err != nil {
-		return nil, fmt.Errorf("unable to lock ORM: %+v", err)
+		return nil, errors.Wrapf(err, "unable to lock ORM")
 	}
 
 	db, err := initializeDatabase(string(dialect), uri)
@@ -73,12 +79,44 @@ func NewORM(uri string, timeout time.Duration) (*ORM, error) {
 	}
 
 	orm := &ORM{
-		DB:              db,
-		lockingStrategy: lockingStrategy,
-		dialectName:     dialect,
+		DB:                 db,
+		lockingStrategy:    lockingStrategy,
+		acquireLockTimeout: timeout,
+		dialectName:        dialect,
+	}
+
+	if dialect == DialectPostgres {
+		db.Callback().Create().Before("gorm:begin_transaction").Register("chainlink:before_create", orm.acquireAdvisoryLock)
+		db.Callback().Create().After("gorm:commit_or_rollback_transaction").Register("chainlink:after_create", orm.releaseAdvisoryLock)
+
+		db.Callback().Delete().Before("gorm:begin_transaction").Register("chainlink:before_delete", orm.acquireAdvisoryLock)
+		db.Callback().Delete().After("gorm:commit_or_rollback_transaction").Register("chainlink:after_delete", orm.releaseAdvisoryLock)
+
+		db.Callback().Update().Before("gorm:begin_transaction").Register("chainlink:before_update", orm.acquireAdvisoryLock)
+		db.Callback().Update().After("gorm:commit_or_rollback_transaction").Register("chainlink:after_update", orm.releaseAdvisoryLock)
+
+		db.Callback().Query().Before("gorm:query").Register("chainlink:before_query", orm.acquireAdvisoryLock)
+		db.Callback().Query().After("gorm:after_query").Register("chainlink:after_query", orm.releaseAdvisoryLock)
+
+		db.Callback().RowQuery().Before("gorm:row_query").Register("chainlink:before_row_query", orm.acquireAdvisoryLock)
+		db.Callback().RowQuery().After("gorm:row_query").Register("chainlink:after_row_query", orm.releaseAdvisoryLock)
 	}
 
 	return orm, nil
+}
+
+func (orm *ORM) acquireAdvisoryLock(scope *gorm.Scope) {
+	err := orm.lockingStrategy.Lock(orm.acquireLockTimeout)
+	if err != nil {
+		scope.Err(errors.Wrap(ErrNoAdvisoryLock, err.Error()))
+	}
+}
+
+func (orm *ORM) releaseAdvisoryLock(scope *gorm.Scope) {
+	err := orm.lockingStrategy.Unlock()
+	if err != nil {
+		scope.Err(errors.Wrap(ErrReleaseLockFailed, err.Error()))
+	}
 }
 
 func displayTimeout(timeout time.Duration) string {

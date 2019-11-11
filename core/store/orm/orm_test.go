@@ -874,12 +874,6 @@ func TestORM_FindUser(t *testing.T) {
 func TestORM_AuthorizedUserWithSession(t *testing.T) {
 	t.Parallel()
 
-	store, cleanup := cltest.NewStore(t)
-	defer cleanup()
-
-	user := cltest.MustUser("have@email", "password")
-	require.NoError(t, store.SaveUser(&user))
-
 	tests := []struct {
 		name            string
 		sessionID       string
@@ -895,6 +889,12 @@ func TestORM_AuthorizedUserWithSession(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			store, cleanup := cltest.NewStore(t)
+			defer cleanup()
+
+			user := cltest.MustUser("have@email", "password")
+			require.NoError(t, store.SaveUser(&user))
+
 			prevSession := cltest.NewSession("correctID")
 			prevSession.LastUsed = time.Now().Add(-cltest.MustParseDuration(t, "2m"))
 			require.NoError(t, store.SaveSession(&prevSession))
@@ -955,12 +955,6 @@ func TestORM_DeleteUserSession(t *testing.T) {
 func TestORM_CreateSession(t *testing.T) {
 	t.Parallel()
 
-	store, cleanup := cltest.NewStore(t)
-	defer cleanup()
-
-	initial := cltest.MustUser(cltest.APIEmail, cltest.Password)
-	require.NoError(t, store.SaveUser(&initial))
-
 	tests := []struct {
 		name        string
 		email       string
@@ -975,6 +969,12 @@ func TestORM_CreateSession(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			store, cleanup := cltest.NewStore(t)
+			defer cleanup()
+
+			initial := cltest.MustUser(cltest.APIEmail, cltest.Password)
+			require.NoError(t, store.SaveUser(&initial))
+
 			sessionRequest := models.SessionRequest{
 				Email:    test.email,
 				Password: test.password,

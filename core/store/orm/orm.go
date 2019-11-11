@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"chainlink/core/logger"
@@ -44,10 +45,11 @@ const (
 
 // ORM contains the database object used by Chainlink.
 type ORM struct {
-	DB                 *gorm.DB
-	lockingStrategy    LockingStrategy
-	acquireLockTimeout time.Duration
-	dialectName        DialectName
+	DB                  *gorm.DB
+	lockingStrategy     LockingStrategy
+	advisoryLockTimeout time.Duration
+	dialectName         DialectName
+	closeOnce           sync.Once
 }
 
 var (
@@ -59,12 +61,20 @@ var (
 func NewORM(uri string, timeout time.Duration) (*ORM, error) {
 	dialect, err := DeduceDialect(uri)
 	if err != nil {
+		panic(err)
 		return nil, err
 	}
 
 	lockingStrategy, err := NewLockingStrategy(dialect, uri)
 	if err != nil {
+		panic("lock fail")
 		return nil, fmt.Errorf("unable to create ORM lock: %+v", err)
+	}
+
+	err = lockingStrategy.Open(timeout)
+	if err != nil {
+		panic("lock open fail")
+		return nil, errors.Wrapf(err, "unable to open ORM for locking")
 	}
 
 	logger.Infof("Locking %v for exclusive access with %v timeout", dialect, displayTimeout(timeout))
@@ -79,43 +89,27 @@ func NewORM(uri string, timeout time.Duration) (*ORM, error) {
 	}
 
 	orm := &ORM{
-		DB:                 db,
-		lockingStrategy:    lockingStrategy,
-		acquireLockTimeout: timeout,
-		dialectName:        dialect,
+		DB:                  db,
+		lockingStrategy:     lockingStrategy,
+		advisoryLockTimeout: timeout,
+		dialectName:         dialect,
 	}
 
 	if dialect == DialectPostgres {
-		db.Callback().Create().Before("gorm:begin_transaction").Register("chainlink:before_create", orm.acquireAdvisoryLock)
-		db.Callback().Create().After("gorm:commit_or_rollback_transaction").Register("chainlink:after_create", orm.releaseAdvisoryLock)
-
-		db.Callback().Delete().Before("gorm:begin_transaction").Register("chainlink:before_delete", orm.acquireAdvisoryLock)
-		db.Callback().Delete().After("gorm:commit_or_rollback_transaction").Register("chainlink:after_delete", orm.releaseAdvisoryLock)
-
-		db.Callback().Update().Before("gorm:begin_transaction").Register("chainlink:before_update", orm.acquireAdvisoryLock)
-		db.Callback().Update().After("gorm:commit_or_rollback_transaction").Register("chainlink:after_update", orm.releaseAdvisoryLock)
-
-		db.Callback().Query().Before("gorm:query").Register("chainlink:before_query", orm.acquireAdvisoryLock)
-		db.Callback().Query().After("gorm:after_query").Register("chainlink:after_query", orm.releaseAdvisoryLock)
-
-		db.Callback().RowQuery().Before("gorm:row_query").Register("chainlink:before_row_query", orm.acquireAdvisoryLock)
-		db.Callback().RowQuery().After("gorm:row_query").Register("chainlink:after_row_query", orm.releaseAdvisoryLock)
+		db.Callback().Create().Before("gorm:begin_transaction").Register("chainlink:before_create", orm.ensureAdvisoryLock)
+		db.Callback().Delete().Before("gorm:begin_transaction").Register("chainlink:before_delete", orm.ensureAdvisoryLock)
+		db.Callback().Update().Before("gorm:begin_transaction").Register("chainlink:before_update", orm.ensureAdvisoryLock)
+		db.Callback().Query().Before("gorm:query").Register("chainlink:before_query", orm.ensureAdvisoryLock)
+		db.Callback().RowQuery().Before("gorm:row_query").Register("chainlink:before_row_query", orm.ensureAdvisoryLock)
 	}
 
 	return orm, nil
 }
 
-func (orm *ORM) acquireAdvisoryLock(scope *gorm.Scope) {
-	err := orm.lockingStrategy.Lock(orm.acquireLockTimeout)
+func (orm *ORM) ensureAdvisoryLock(scope *gorm.Scope) {
+	err := orm.lockingStrategy.Lock(orm.advisoryLockTimeout)
 	if err != nil {
 		scope.Err(errors.Wrap(ErrNoAdvisoryLock, err.Error()))
-	}
-}
-
-func (orm *ORM) releaseAdvisoryLock(scope *gorm.Scope) {
-	err := orm.lockingStrategy.Unlock()
-	if err != nil {
-		scope.Err(errors.Wrap(ErrReleaseLockFailed, err.Error()))
 	}
 }
 
@@ -188,10 +182,14 @@ func (orm *ORM) SetLogging(enabled bool) {
 
 // Close closes the underlying database connection.
 func (orm *ORM) Close() error {
-	return multierr.Append(
-		orm.DB.Close(),
-		orm.lockingStrategy.Unlock(),
-	)
+	var err error
+	orm.closeOnce.Do(func() {
+		err = multierr.Combine(
+			orm.DB.Close(),
+			orm.lockingStrategy.Close(orm.advisoryLockTimeout),
+		)
+	})
+	return err
 }
 
 // Unscoped returns a new instance of this ORM that includes soft deleted items.

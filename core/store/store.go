@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -138,14 +139,14 @@ func NewStoreWithDialer(config *orm.Config, dialer Dialer) *Store {
 	}
 	orm, err := initializeORM(config)
 	if err != nil {
-		logger.Fatal(fmt.Sprintf("Unable to initialize ORM: %+v", err))
+		log.Fatal(fmt.Sprintf("Unable to initialize ORM: %+v", err))
 	}
 	ethrpc, err := dialer.Dial(config.EthereumURL())
 	if err != nil {
-		logger.Fatal(fmt.Sprintf("Unable to dial ETH RPC port: %+v", err))
+		log.Fatal(fmt.Sprintf("Unable to dial ETH RPC port: %+v", err))
 	}
 	if err := orm.ClobberDiskKeyStoreWithDBKeys(config.KeysDir()); err != nil {
-		logger.Fatal(fmt.Sprintf("Unable to migrate key store to disk: %+v", err))
+		log.Fatal(fmt.Sprintf("Unable to migrate key store to disk: %+v", err))
 	}
 	keyStore := NewKeyStore(config.KeysDir())
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -153,6 +154,10 @@ func (s *PostgresLockingStrategy) Open(timeout time.Duration) error {
 		panic("nil")
 	}
 	s.conn = conn
+	for _, f := range getStack() {
+		fmt.Printf(".Open: %v\n", f)
+	}
+	fmt.Println("")
 
 	return nil
 }
@@ -161,14 +166,16 @@ func (s *PostgresLockingStrategy) Close(timeout time.Duration) error {
 	s.m.Lock()
 	defer s.m.Unlock()
 
-	s.calledClose = true
+	//s.calledClose = true
 	// s.closes = append(s.closes, getStack())
 	//    callingTest := callingTest()
 	// if _, ok := s.closes[callingTest]; ok {
+	fmt.Println(".Close")
 	for _, f := range getStack() {
 		fmt.Printf(".Close: %v\n", f)
 	}
 	fmt.Println("")
+	s.calledClose = true
 	// 	fmt.Printf("==================================================\n")
 	// 	frmz := getStack()
 	// 	for _, f := range frmz {
@@ -246,7 +253,11 @@ func (s *PostgresLockingStrategy) Lock(timeout time.Duration) error {
 		// 	fmt.Printf("%v\n", f)
 		// }
 
-		panic("you must call PostgresLockingStrategy#Open first")
+		for _, f := range getStack() {
+			fmt.Printf(".Lock: %v\n", f)
+		}
+		fmt.Println("")
+		log.Fatal("you must call PostgresLockingStrategy#Open first")
 	}
 
 	ctx := context.Background()
@@ -260,6 +271,10 @@ func (s *PostgresLockingStrategy) Lock(timeout time.Duration) error {
 	if err != nil {
 		return errors.Wrapf(ErrNoAdvisoryLock, "postgres advisory locking strategy failed on .Lock, timeout set to %v: %v", displayTimeout(timeout), err)
 	}
+	//for _, f := range getStack() {
+	//fmt.Printf(".Lock: %v\n", f)
+	//}
+	//fmt.Println("")
 	return nil
 }
 

@@ -109,6 +109,8 @@ func NewORM(uri string, timeout time.Duration) (*ORM, error) {
 func (orm *ORM) ensureAdvisoryLock(scope *gorm.Scope) {
 	err := orm.lockingStrategy.Lock(orm.advisoryLockTimeout)
 	if err != nil {
+		fmt.Println("ensureAdvisoryLock failed: ")
+		panic(err)
 		scope.Err(errors.Wrap(ErrNoAdvisoryLock, err.Error()))
 	}
 }
@@ -1135,7 +1137,7 @@ func (orm *ORM) ClobberDiskKeyStoreWithDBKeys(keysDir string) error {
 		return err
 	}
 
-	keys, err := orm.Keys()
+	keys, err := orm.Keys() // TODO: Uh oh, line that fails pg advisory lock. first sql call
 	if err != nil {
 		return err
 	}

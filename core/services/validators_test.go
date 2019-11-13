@@ -53,6 +53,21 @@ func TestValidateJob(t *testing.T) {
 			cltest.MustReadFile(t, "testdata/task_only_job.json"),
 			models.NewJSONAPIErrorsWith("Must have at least one Initiator and one Task"),
 		},
+		{
+			"runlog and ethtx with an address",
+			cltest.MustReadFile(t, "testdata/runlog_ethtx_w_address_job.json"),
+			models.NewJSONAPIErrorsWith("Cannot set's EthTx function selector parameter with a RunLog Initiator"),
+		},
+		{
+			"runlog and ethtx with a function selector",
+			cltest.MustReadFile(t, "testdata/runlog_ethtx_w_funcselector_job.json"),
+			models.NewJSONAPIErrorsWith("Cannot set's EthTx address parameter with a RunLog Initiator"),
+		},
+		{
+			"runlog and ethtx with a function selector",
+			cltest.MustReadFile(t, "testdata/runlog_2_ethlogs_job.json"),
+			models.NewJSONAPIErrorsWith("Cannot set's EthTx address parameter with a RunLog Initiator"),
+		},
 	}
 
 	store, cleanup := cltest.NewStore(t)

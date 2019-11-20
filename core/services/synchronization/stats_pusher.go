@@ -102,6 +102,7 @@ type response struct {
 }
 
 func (sp *StatsPusher) eventLoop(parentCtx context.Context) {
+	logger.Debugw("Entered StatsPusher event loop")
 	for {
 		err := sp.pusherLoop(parentCtx)
 		if err == nil {

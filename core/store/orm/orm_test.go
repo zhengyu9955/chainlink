@@ -759,6 +759,7 @@ func TestORM_FindUser(t *testing.T) {
 func TestORM_AuthorizedUserWithSession(t *testing.T) {
 	t.Parallel()
 
+	correctID := "correctID"
 	tests := []struct {
 		name            string
 		sessionID       string
@@ -766,10 +767,11 @@ func TestORM_AuthorizedUserWithSession(t *testing.T) {
 		wantError       bool
 		wantEmail       string
 	}{
-		{"authorized", "correctID", cltest.MustParseDuration(t, "3m"), false, "have@email"},
-		{"expired", "correctID", cltest.MustParseDuration(t, "0m"), true, ""},
+		{"authorized", correctID, cltest.MustParseDuration(t, "3m"), false, "have@email"},
+		{"expired", correctID, cltest.MustParseDuration(t, "0m"), true, ""},
 		{"incorrect", "wrong", cltest.MustParseDuration(t, "3m"), true, ""},
 		{"empty", "", cltest.MustParseDuration(t, "3m"), true, ""},
+		{"sql injection", `id="correctID")) OR DELETE USERS;`, cltest.MustParseDuration(t, "3m"), true, ""},
 	}
 
 	for _, test := range tests {
@@ -780,7 +782,7 @@ func TestORM_AuthorizedUserWithSession(t *testing.T) {
 			user := cltest.MustUser("have@email", "password")
 			require.NoError(t, store.SaveUser(&user))
 
-			prevSession := cltest.NewSession("correctID")
+			prevSession := cltest.NewSession(correctID)
 			prevSession.LastUsed = time.Now().Add(-cltest.MustParseDuration(t, "2m"))
 			require.NoError(t, store.SaveSession(&prevSession))
 
@@ -789,6 +791,8 @@ func TestORM_AuthorizedUserWithSession(t *testing.T) {
 			assert.Equal(t, test.wantEmail, actual.Email)
 			if test.wantError {
 				require.Error(t, err)
+				_, err := store.ORM.AuthorizedUserWithSession(correctID, test.sessionDuration)
+				require.NoError(t, err)
 			} else {
 				require.NoError(t, err)
 				var bumpedSession models.Session

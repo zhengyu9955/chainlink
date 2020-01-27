@@ -13,7 +13,6 @@
     "test": "echo \"No tests required for @chainlink/ts-test-helpers\"",
     "test:ci": "echo \"No tests required for @chainlink/ts-test-helpers\""
   },
-  "peerDependencies": {},
   "dependencies": {
     "typescript": "^3.7.4"
   },

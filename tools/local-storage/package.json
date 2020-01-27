@@ -13,7 +13,6 @@
     "test": "jest",
     "test:ci": "yarn test --coverage --reporters jest-silent-reporter --maxWorkers=50%"
   },
-  "peerDependencies": {},
   "dependencies": {
     "local-storage-fallback": "^4.1.1",
     "typescript": "^3.7.4"

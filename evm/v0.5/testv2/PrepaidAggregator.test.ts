@@ -1198,4 +1198,23 @@ describe('PrepaidAggregator', () => {
       assertBigNum(originalBalance.add(deposit), newBalance)
     })
   })
+
+  describe.only('stuck scenario', () => {
+    it.only('updates the allocated and available funds counters', async () => {
+      await aggregator.connect(personas.Carol).addOracle(personas.Neil.address, 1, 1, 0)
+      await aggregator.connect(personas.Carol).addOracle(personas.Nelly.address, 1, 2, 0)
+      assertBigNum(0, await aggregator.allocatedFunds())
+
+      await aggregator
+        .connect(personas.Neil)
+        .updateAnswer(nextRound, 100)
+
+      // second transaction should fail to update
+      await aggregator
+        .connect(personas.Neil)
+        .updateAnswer(nextRound + 1, 101)
+
+      assertBigNum(101, await aggregator.latestAnswer())
+    })
+  })
 })

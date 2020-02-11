@@ -8,7 +8,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 import ReactGA from 'react-ga'
 import './theme.css'
 
-ReactGA.initialize(process.env.REACT_APP_GA_ID)
+ReactGA.initialize(process.env['REACT_APP_GA_ID'] || '')
 
 ReactDOM.render(
   <ReduxProvider store={store}>

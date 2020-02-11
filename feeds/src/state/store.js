@@ -1,15 +1,16 @@
 import { createStore, applyMiddleware, combineReducers } from 'redux'
 import thunkMiddleware from 'redux-thunk'
-import { createLogger } from 'redux-logger'
+// import { createLogger } from 'redux-logger'
 import { persistStore, persistReducer, createMigrate } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 import { createFilter } from 'redux-persist-transform-filter'
+import createStore from './createStore'
 import * as reducers from './ducks'
 import aggregatorMiddleware from './middlewares/aggregatorMiddleware'
 
-const logger = createLogger({
-  collapsed: true,
-})
+// const logger = createLogger({
+//   collapsed: true,
+// })
 
 /**
  * Redux persis config
@@ -43,7 +44,7 @@ const initialState = {}
 const developmentMiddlewares = applyMiddleware(
   thunkMiddleware,
   aggregatorMiddleware,
-  logger,
+  // logger,
 )
 
 const productionMiddlewares = applyMiddleware(

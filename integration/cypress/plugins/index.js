@@ -12,6 +12,7 @@ module.exports = on => {
   // https://stackoverflow.com/a/58947968
   // ref: https://docs.cypress.io/api/plugins/browser-launch-api.html#Usage
   on('before:browser:launch', (browser = {}, args) => {
+    console.log('iBrowser Bowser !!!!!!!!!!!!!!!!!!!!!!!!!!!!!', browswer.name)
     if (browser.name === 'chrome') {
       args.push('--disable-dev-shm-usage')
       return args

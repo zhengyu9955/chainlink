@@ -60,6 +60,7 @@ func TestNewInitiatorFromRequest(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			res := models.NewInitiatorFromRequest(
 				test.initrReq,
@@ -166,6 +167,7 @@ func TestJobEnded(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			job := cltest.NewJob()
 			job.EndAt = test.endAt
@@ -193,6 +195,7 @@ func TestJobSpec_Started(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			job := cltest.NewJob()
 			job.StartAt = test.startAt
@@ -217,6 +220,7 @@ func TestNewTaskType(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			got, err := models.NewTaskType(test.input)
 

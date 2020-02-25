@@ -22,6 +22,7 @@ func TestGetContract(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			contract, err := GetContract(test.contract)
 			if test.expectErr {
@@ -78,6 +79,7 @@ func TestContract_EncodeMessageCall_errors(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			data, err := oracle.EncodeMessageCall(test.method, test.args...)
 			assert.Error(t, err)

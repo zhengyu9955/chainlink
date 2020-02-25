@@ -40,6 +40,7 @@ func TestNewUnsignedServiceAgreementFromRequest(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var sar models.JobSpecRequest
 			assert.NoError(t, json.Unmarshal([]byte(test.input), &sar))
@@ -77,6 +78,7 @@ func TestBuildServiceAgreement(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var sar models.JobSpecRequest
 			assert.NoError(t, json.Unmarshal([]byte(test.input), &sar))
@@ -184,6 +186,7 @@ func TestEncumbrance_ABI(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			fs := func(s string) eth.FunctionSelector {
 				return eth.BytesToFunctionSelector(hexutil.MustDecode(s))
@@ -230,6 +233,7 @@ func TestServiceAgreementRequest_UnmarshalJSON(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var sar models.ServiceAgreement
 			assert.NoError(t, json.Unmarshal([]byte(test.input), &sar))

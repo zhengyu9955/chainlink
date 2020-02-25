@@ -123,6 +123,7 @@ func TestSyncJobRunPresenter_Initiators(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.initrType, func(t *testing.T) {
 			jobRun := models.JobRun{
 				ID:         models.NewID(),
@@ -167,6 +168,7 @@ func TestSyncJobRunPresenter_EthTxTask(t *testing.T) {
 		{"safe not fulfilled", "testdata/notFulfilledReceiptResponse.json", "noFulfilledRunLog"},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			newAddress := common.HexToAddress("0x9FBDa871d559710256a2502A2517b794B482Db40")
 			requestID := "RequestID"

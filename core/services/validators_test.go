@@ -76,6 +76,7 @@ func TestValidateJob(t *testing.T) {
 	defer cleanup()
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var j models.JobSpec
 			assert.NoError(t, json.Unmarshal(test.input, &j))
@@ -177,6 +178,7 @@ func TestValidateBridgeType(t *testing.T) {
 		}}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.description, func(t *testing.T) {
 			result := services.ValidateBridgeType(&test.request, store)
 			assert.Equal(t, test.want, result)
@@ -218,6 +220,7 @@ func TestValidateBridgeNotExist(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.description, func(t *testing.T) {
 			result := services.ValidateBridgeTypeNotExist(&test.request, store)
 			assert.Equal(t, test.want, result)
@@ -256,6 +259,7 @@ func TestValidateExternalInitiator(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var exr models.ExternalInitiatorRequest
 
@@ -298,6 +302,7 @@ func TestValidateInitiator(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var initr models.Initiator
 			assert.NoError(t, json.Unmarshal([]byte(test.input), &initr))
@@ -356,6 +361,7 @@ func TestValidateServiceAgreement(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			sa, err := cltest.ServiceAgreementFromString(test.input)
 			require.NoError(t, err)
@@ -420,6 +426,7 @@ func TestValidateInitiator_FluxMonitorErrors(t *testing.T) {
 		{"idleThreshold", cltest.MustJSONSet(t, validInitiator, "params.idleThreshold", "30s")},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run("bad "+test.Field, func(t *testing.T) {
 			var initr models.Initiator
 			require.NoError(t, json.Unmarshal([]byte(test.JSONStr), &initr))
@@ -476,6 +483,7 @@ func TestValidateInitiator_FeedsErrors(t *testing.T) {
 		{"invalid entry", `["http://example.com", {"bridge": "testbridge"}, 1]`},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.description, func(t *testing.T) {
 			var initr models.Initiator
 			require.NoError(t, json.Unmarshal([]byte(validInitiator), &initr))

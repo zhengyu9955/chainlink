@@ -30,6 +30,7 @@ func TestCors_DefaultOrigins(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.origin, func(t *testing.T) {
 			headers := map[string]string{"Origin": test.origin}
 			resp, cleanup := client.Get("/v2/config", headers)
@@ -54,6 +55,7 @@ func TestCors_OverrideOrigins(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.origin, func(t *testing.T) {
 			config, _ := cltest.NewConfig(t)
 			config.Set("ALLOW_ORIGINS", test.allow)

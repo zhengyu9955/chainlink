@@ -127,6 +127,7 @@ func TestBridge_Perform_transitionsTo(t *testing.T) {
 	store.Config.Set("BRIDGE_RESPONSE_URL", "")
 
 	for _, test := range cases {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			mock, _ := cltest.NewHTTPMockServer(t, http.StatusOK, "POST", `{"pending": true}`)
 			_, bt := cltest.NewBridgeType(t, "auctionBidding", mock.URL)
@@ -167,6 +168,7 @@ func TestBridge_Perform_startANewRun(t *testing.T) {
 	wantedBody := fmt.Sprintf(`{"id":"%v","data":{"result":"lot 49"}}`, runID)
 
 	for _, test := range cases {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			mock, ensureCalled := cltest.NewHTTPMockServer(t, test.status, "POST", test.response,
 				func(_ http.Header, body string) {
@@ -209,6 +211,7 @@ func TestBridge_Perform_responseURL(t *testing.T) {
 	}
 
 	for _, test := range cases {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			store, cleanup := cltest.NewStore(t)
 			defer cleanup()

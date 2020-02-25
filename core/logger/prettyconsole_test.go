@@ -37,16 +37,17 @@ func TestPrettyConsole_Write(t *testing.T) {
 		{"error", `{"broken":}`, `{}`, true},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
 			tr := &testReader{}
 			pc := PrettyConsole{tr}
-			_, err := pc.Write([]byte(tt.input))
+			_, err := pc.Write([]byte(test.input))
 
-			if tt.wantError {
+			if test.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Equal(t, tt.want, tr.Written)
+				assert.Equal(t, test.want, tr.Written)
 			}
 		})
 	}

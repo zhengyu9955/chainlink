@@ -20,15 +20,6 @@ import (
 func TestSessionsController_Create(t *testing.T) {
 	t.Parallel()
 
-	user := cltest.MustUser("email@test.net", "password123")
-	app, cleanup := cltest.NewApplication(t, cltest.LenientEthMock)
-	app.Start()
-	err := app.Store.SaveUser(&user)
-	assert.NoError(t, err)
-	defer cleanup()
-
-	config := app.Store.Config
-	client := http.Client{}
 	tests := []struct {
 		name        string
 		email       string
@@ -41,7 +32,18 @@ func TestSessionsController_Create(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
+			user := cltest.MustUser("email@test.net", "password123")
+			app, cleanup := cltest.NewApplication(t, cltest.LenientEthMock)
+			app.Start()
+			err := app.Store.SaveUser(&user)
+			assert.NoError(t, err)
+			defer cleanup()
+
+			config := app.Store.Config
+			client := http.Client{}
+
 			body := fmt.Sprintf(`{"email":"%s","password":"%s"}`, test.email, test.password)
 			request, err := http.NewRequest("POST", config.ClientNodeURL()+"/sessions", bytes.NewBufferString(body))
 			assert.NoError(t, err)
@@ -105,18 +107,8 @@ func TestSessionsController_Create_ReapSessions(t *testing.T) {
 func TestSessionsController_Destroy(t *testing.T) {
 	t.Parallel()
 
-	seedUser := cltest.MustUser("email@test.net", "password123")
-	app, cleanup := cltest.NewApplication(t, cltest.LenientEthMock)
-	app.Start()
-	err := app.Store.SaveUser(&seedUser)
-	assert.NoError(t, err)
-
 	correctSession := models.NewSession()
-	require.NoError(t, app.Store.SaveSession(&correctSession))
-	defer cleanup()
 
-	config := app.Store.Config
-	client := http.Client{}
 	tests := []struct {
 		name, sessionID string
 		success         bool
@@ -126,7 +118,20 @@ func TestSessionsController_Destroy(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
+			seedUser := cltest.MustUser("email@test.net", "password123")
+			app, cleanup := cltest.NewApplication(t, cltest.LenientEthMock)
+			app.Start()
+			err := app.Store.SaveUser(&seedUser)
+			assert.NoError(t, err)
+
+			require.NoError(t, app.Store.SaveSession(&correctSession))
+			defer cleanup()
+
+			config := app.Store.Config
+			client := http.Client{}
+
 			cookie := cltest.MustGenerateSessionCookie(test.sessionID)
 			request, err := http.NewRequest("DELETE", config.ClientNodeURL()+"/sessions", nil)
 			assert.NoError(t, err)

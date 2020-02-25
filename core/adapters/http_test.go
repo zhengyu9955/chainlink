@@ -32,6 +32,7 @@ func TestHttpAdapters_NotAUrlError(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			result := test.adapter.Perform(models.RunInput{}, store)
 			assert.True(t, result.HasError())
@@ -71,6 +72,7 @@ func TestHTTPGet_Perform(t *testing.T) {
 	}
 
 	for _, test := range cases {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			input := cltest.NewRunInputWithResult("inputValue")
 			mock, cleanup := cltest.NewHTTPMockServer(t, test.status, "GET", test.response,
@@ -115,6 +117,7 @@ func TestHTTP_TooLarge(t *testing.T) {
 		{"POST", func(url models.WebURL) adapters.BaseAdapter { return &adapters.HTTPPost{URL: url} }},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.verb, func(t *testing.T) {
 			input := cltest.NewRunInputWithResult("inputValue")
 			largePayload := "12"
@@ -251,6 +254,7 @@ func TestHttpPost_Perform(t *testing.T) {
 	}
 
 	for _, test := range cases {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			input := cltest.NewRunInputWithResult("inputVal")
 			mock, cleanup := cltest.NewHTTPMockServer(t, test.status, "POST", test.response,
@@ -342,6 +346,7 @@ func TestQueryParameters_Success(t *testing.T) {
 	}
 
 	for _, test := range cases {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			qp := adapters.QueryParameters{}
 			err := json.Unmarshal([]byte(test.queryParams), &qp)
@@ -393,6 +398,7 @@ func TestQueryParameters_Error(t *testing.T) {
 	}
 
 	for _, test := range cases {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			qp := adapters.QueryParameters{}
 			err := json.Unmarshal([]byte(test.queryParams), &qp)
@@ -499,6 +505,7 @@ func TestExtendedPath_Success(t *testing.T) {
 	}
 
 	for _, test := range cases {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ep := adapters.ExtendedPath{}
 			err := json.Unmarshal([]byte(test.path), &ep)
@@ -543,6 +550,7 @@ func TestExtendedPath_Error(t *testing.T) {
 	}
 
 	for _, test := range cases {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ep := adapters.ExtendedPath{}
 			err := json.Unmarshal([]byte(test.path), &ep)
@@ -630,6 +638,7 @@ func TestHTTP_BuildingURL(t *testing.T) {
 	}
 
 	for _, test := range cases {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ep := adapters.ExtendedPath{}
 			qp := adapters.QueryParameters{}

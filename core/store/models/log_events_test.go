@@ -75,6 +75,7 @@ func TestParseRunLog(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			output, err := models.ParseRunLog(test.log)
 			assert.JSONEq(t, strings.ToLower(test.wantData.String()), strings.ToLower(output.String()))
@@ -100,6 +101,7 @@ func TestParseNewRoundLog(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			output, err := models.ParseNewRoundLog(test.log)
 			assert.NoError(t, err)
@@ -124,6 +126,7 @@ func TestEthLogEvent_JSON(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			initr := models.Initiator{Type: models.InitiatorEthLog}
 			le := models.InitiatorLogEvent{Initiator: initr, Log: test.el}.LogRequest()
@@ -163,6 +166,7 @@ func TestRequestLogEvent_Validate(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			// Any log factory works since we overwrite topics.
 			log := cltest.NewRunLog(
@@ -234,6 +238,7 @@ func TestStartRunOrSALogSubscription_ValidateSenders(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			app, cleanup := cltest.NewApplicationWithKey(t)
 			defer cleanup()
@@ -447,6 +452,7 @@ func TestRunLogEvent_ContractPayment(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			rle := models.RunLogEvent{models.InitiatorLogEvent{Log: test.log}}
 
@@ -488,6 +494,7 @@ func TestRunLogEvent_Requester(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			rle := models.RunLogEvent{models.InitiatorLogEvent{Log: test.log}}
 
@@ -536,6 +543,7 @@ func TestRunLogEvent_RunRequest(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			rle := models.RunLogEvent{models.InitiatorLogEvent{Log: test.log}}
 			rr, err := rle.RunRequest()

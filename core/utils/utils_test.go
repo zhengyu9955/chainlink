@@ -151,6 +151,7 @@ func TestCoerceInterfaceMapToStringMap(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			decoded, err := utils.CoerceInterfaceMapToStringMap(test.input)
 			if test.wantError {
@@ -176,6 +177,7 @@ func TestKeccak256(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			input, err := hexutil.Decode(test.input)
 			assert.NoError(t, err)
@@ -241,6 +243,7 @@ func TestMinBigs(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(fmt.Sprintf("%s < %s", test.min, test.max), func(t *testing.T) {
 			left, ok := big.NewInt(0).SetString(test.min, 10)
 			require.True(t, ok)
@@ -265,6 +268,7 @@ func TestMaxUint32(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			actual := utils.MaxUint32(test.vals[0], test.vals[1:len(test.vals)]...)
 			assert.Equal(t, test.expectation, actual)
@@ -284,6 +288,7 @@ func TestMaxInt(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			actual := utils.MaxInt(test.vals[0], test.vals[1:len(test.vals)]...)
 			assert.Equal(t, test.expectation, actual)
@@ -303,6 +308,7 @@ func TestMinUint(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			actual := utils.MinUint(test.vals[0], test.vals[1:len(test.vals)]...)
 			assert.Equal(t, test.expectation, actual)

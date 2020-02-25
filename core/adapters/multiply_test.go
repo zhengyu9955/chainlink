@@ -36,6 +36,7 @@ func TestMultiply_Marshal(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			buf, err := json.Marshal(tc.obj)
 			require.NoError(t, err)
@@ -63,6 +64,7 @@ func TestMultiply_Unmarshal(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			var m adapters.Multiply
 			err := json.Unmarshal([]byte(tc.payload), &m)

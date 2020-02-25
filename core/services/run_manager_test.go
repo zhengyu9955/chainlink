@@ -607,6 +607,7 @@ func TestRunManager_Create_fromRunLogPayments(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			config, configCleanup := cltest.NewConfig(t)
 			defer configCleanup()
+			config.Set("DATABASE_TIMEOUT", "10s") // Lots of parallelized tests
 			config.Set("MINIMUM_CONTRACT_PAYMENT", test.configMinimumPayment)
 			app, cleanup := cltest.NewApplicationWithConfig(t, config, cltest.EthMockRegisterChainID)
 			defer cleanup()
@@ -700,6 +701,7 @@ func TestRunManager_ResumeConfirmingTasks(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(string(test.status), func(t *testing.T) {
 			store, cleanup := cltest.NewStore(t)
 			defer cleanup()
@@ -735,6 +737,7 @@ func TestRunManager_ResumeAllInProgress(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(string(test.status), func(t *testing.T) {
 			store, cleanup := cltest.NewStore(t)
 			defer cleanup()
@@ -770,6 +773,7 @@ func TestRunManager_ResumeAllInProgress_Archived(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(string(test.status), func(t *testing.T) {
 			store, cleanup := cltest.NewStore(t)
 			defer cleanup()
@@ -808,6 +812,7 @@ func TestRunManager_ResumeAllInProgress_NotInProgress(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(string(test.status), func(t *testing.T) {
 			store, cleanup := cltest.NewStore(t)
 			defer cleanup()
@@ -845,6 +850,7 @@ func TestRunManager_ResumeAllInProgress_NotInProgressAndArchived(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(string(test.status), func(t *testing.T) {
 			store, cleanup := cltest.NewStore(t)
 			defer cleanup()

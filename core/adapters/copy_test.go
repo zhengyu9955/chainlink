@@ -111,6 +111,7 @@ func TestCopy_UnmarshalJSON(t *testing.T) {
 		{"unclosed string errors", `{"copyPath":"1.2}`, []string{}, true},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			a := adapters.Copy{}
 			err := json.Unmarshal([]byte(test.input), &a)

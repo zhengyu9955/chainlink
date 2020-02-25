@@ -23,6 +23,7 @@ func TestID_UnmarshalText(t *testing.T) {
 		{"wrapped uuid", `"3d7af8e1-ede5-4350-864c-663cfe0ad8e5"`, "3d7af8e1ede54350864c663cfe0ad8e5"},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			err := i.UnmarshalText([]byte(test.input))
 			require.NoError(t, err)
@@ -47,6 +48,7 @@ func TestID_UnmarshalString(t *testing.T) {
 		{"wrapped uuid", `"3d7af8e1-ede5-4350-864c-663cfe0ad8e5"`, "3d7af8e1ede54350864c663cfe0ad8e5"},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			err := i.UnmarshalString(test.input)
 			require.NoError(t, err)
@@ -71,6 +73,7 @@ func TestID_Scan(t *testing.T) {
 		{"wrapped uuid", `"3d7af8e1-ede5-4350-864c-663cfe0ad8e5"`, "3d7af8e1ede54350864c663cfe0ad8e5"},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			err := i.Scan(test.input)
 			require.NoError(t, err)

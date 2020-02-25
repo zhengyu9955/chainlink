@@ -945,6 +945,8 @@ func TestTxManager_WithdrawLink_Unconfigured_Oracle(t *testing.T) {
 }
 
 func TestManagedAccount_GetAndIncrementNonce_YieldsCurrentNonceAndIncrements(t *testing.T) {
+	t.Parallel()
+
 	account := accounts.Account{Address: common.HexToAddress("0xbf4ed7b27f1d666546e30d74d50d173d20bca754")}
 	managedAccount := strpkg.NewManagedAccount(account, 0)
 
@@ -962,6 +964,8 @@ func TestManagedAccount_GetAndIncrementNonce_YieldsCurrentNonceAndIncrements(t *
 }
 
 func TestManagedAccount_GetAndIncrementNonce_DoesNotIncrementWhenCallbackThrowsException(t *testing.T) {
+	t.Parallel()
+
 	account := accounts.Account{Address: common.HexToAddress("0xbf4ed7b27f1d666546e30d74d50d173d20bca754")}
 	managedAccount := strpkg.NewManagedAccount(account, 0)
 
@@ -1062,7 +1066,6 @@ func TestTxManager_CreateTxWithGas(t *testing.T) {
 
 	customGasPrice := utils.NewBig(big.NewInt(1337))
 	customGasLimit := uint64(10009)
-
 	defaultGasPrice := utils.NewBig(config.EthGasPriceDefault())
 
 	tests := []struct {
@@ -1080,6 +1083,7 @@ func TestTxManager_CreateTxWithGas(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			config.Set("CHAINLINK_DEV", test.dev)
 

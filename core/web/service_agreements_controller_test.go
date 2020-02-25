@@ -21,29 +21,35 @@ var endAtISO8601 = endAt.Format(time.RFC3339)
 func TestServiceAgreementsController_Create(t *testing.T) {
 	t.Parallel()
 
-	app, cleanup := cltest.NewApplicationWithKey(t, cltest.LenientEthMock)
-	defer cleanup()
-	app.EthMock.RegisterSubscription("logs")
-
-	require.NoError(t, app.Start())
-
-	client := app.NewHTTPClient()
 	base := string(cltest.MustReadFile(t, "testdata/hello_world_agreement.json"))
 	base = strings.Replace(base, "2019-10-19T22:17:19Z", endAtISO8601, 1)
 	tests := []struct {
-		name     string
-		input    string
-		wantCode int
+		name                string
+		input               string
+		wantLogSubscription bool
+		wantCode            int
 	}{
-		{"success", base, http.StatusOK},
-		{"fails validation", cltest.MustJSONDel(t, base, "payment"), http.StatusUnprocessableEntity},
-		{"invalid JSON", "{", http.StatusUnprocessableEntity},
+		{"success", base, true, http.StatusOK},
+		{"fails validation", cltest.MustJSONDel(t, base, "payment"), false, http.StatusUnprocessableEntity},
+		{"invalid JSON", "{", false, http.StatusUnprocessableEntity},
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
-			resp, cleanup := client.Post("/v2/service_agreements", bytes.NewBufferString(test.input))
+			app, cleanup := cltest.NewApplicationWithKey(t, cltest.LenientEthMock)
 			defer cleanup()
+
+			if test.wantLogSubscription {
+				app.EthMock.RegisterSubscription("logs")
+			}
+
+			require.NoError(t, app.Start())
+
+			client := app.NewHTTPClient()
+
+			resp, cleanup2 := client.Post("/v2/service_agreements", bytes.NewBufferString(test.input))
+			defer cleanup2()
 
 			cltest.AssertServerResponse(t, resp, test.wantCode)
 			if test.wantCode == http.StatusOK {

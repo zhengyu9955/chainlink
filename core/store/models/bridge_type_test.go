@@ -24,6 +24,7 @@ func TestBridgeType_Authenticate(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			ok, err := models.AuthenticateBridgeType(bt, test.token)
 			require.NoError(t, err)

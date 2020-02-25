@@ -36,6 +36,7 @@ func TestQuotient_Marshal(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			buf, err := json.Marshal(tc.obj)
 			require.NoError(t, err)
@@ -63,6 +64,7 @@ func TestQuotient_Unmarshal(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			var m adapters.Quotient
 			err := json.Unmarshal([]byte(tc.payload), &m)
@@ -99,6 +101,7 @@ func TestQuotient_Perform_Success(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			input := cltest.NewRunInputWithString(t, test.json)
 			adapter := adapters.Quotient{}
@@ -125,6 +128,7 @@ func TestQuotient_Perform_Error(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			input := cltest.NewRunInputWithString(t, test.json)
 			adapter := adapters.Quotient{}
@@ -146,6 +150,7 @@ func TestQuotient_Perform_JSONParseError(t *testing.T) {
 		{"rubbish string", `{"dividend":"123aaa123"}`},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			adapter := adapters.Quotient{}
 			jsonErr := json.Unmarshal([]byte(test.params), &adapter)

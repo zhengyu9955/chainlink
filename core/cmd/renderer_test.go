@@ -71,6 +71,7 @@ func TestRenderer_RenderJobRun(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			job := cltest.NewJobWithWebInitiator()
 			run := cltest.NewJobRun(job)
@@ -113,6 +114,7 @@ func TestRendererTable_RenderBridgeShow(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			tw := &testWriter{test.content, t, false}
 			r := cmd.RendererTable{Writer: tw}
@@ -137,6 +139,7 @@ func TestRendererTable_RenderBridgeAdd(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			tw := &testWriter{test.content, t, false}
 			r := cmd.RendererTable{Writer: tw}
@@ -161,6 +164,7 @@ func TestRendererTable_RenderBridgeList(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			tw := &testWriter{test.content, t, false}
 			r := cmd.RendererTable{Writer: tw}
@@ -194,6 +198,7 @@ func TestRendererTable_RenderExternalInitiatorAuthentication(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			tw := &testWriter{test.content, t, false}
 			r := cmd.RendererTable{Writer: tw}

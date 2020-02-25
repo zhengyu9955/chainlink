@@ -48,6 +48,7 @@ func Test_ParseCBOR(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			b, err := hexutil.Decode(test.in)
 			assert.NoError(t, err)
@@ -114,6 +115,7 @@ func Test_autoAddMapDelimiters(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			assert.Equal(t, test.want, autoAddMapDelimiters(test.in))
 		})

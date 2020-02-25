@@ -80,6 +80,7 @@ func TestBig_UnmarshalText(t *testing.T) {
 		{"single quoted", `'1234'`, big.NewInt(1234)},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			err := i.UnmarshalText([]byte(test.input))
 			require.NoError(t, err)
@@ -102,6 +103,7 @@ func TestBig_UnmarshalTextErrors(t *testing.T) {
 		{"empty", ``, big.NewInt(0)},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			err := i.UnmarshalText([]byte(test.input))
 			require.Error(t, err)
@@ -120,6 +122,7 @@ func TestBig_MarshalJSON(t *testing.T) {
 		{"number", big.NewInt(1234), `1234`},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			i := (*Big)(test.input)
 			b, err := json.Marshal(&i)
@@ -162,6 +165,7 @@ func TestBig_Scan(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			big := &Big{}
 			err := big.Scan(test.input)
@@ -184,6 +188,7 @@ func TestBig_ScanErrors(t *testing.T) {
 		{"one wrapped string", `"1"`},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			big := &Big{}
 			err := big.Scan(test.input)

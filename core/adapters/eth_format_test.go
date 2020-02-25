@@ -75,6 +75,7 @@ func TestEthInt256_Perform(t *testing.T) {
 
 	adapter := adapters.EthInt256{}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			input := cltest.NewRunInputWithString(t, test.json)
 			result := adapter.Perform(input, nil)
@@ -117,6 +118,7 @@ func TestEthUint256_Perform(t *testing.T) {
 
 	adapter := adapters.EthUint256{}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			input := cltest.NewRunInput(cltest.JSONFromString(t, test.json))
 			result := adapter.Perform(input, nil)

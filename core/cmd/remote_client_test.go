@@ -167,12 +167,6 @@ var EndAt = time.Now().AddDate(0, 10, 0).Round(time.Second).UTC()
 func TestClient_CreateServiceAgreement(t *testing.T) {
 	t.Parallel()
 
-	app, cleanup := cltest.NewApplicationWithKey(t, cltest.LenientEthMock)
-	defer cleanup()
-	require.NoError(t, app.Start())
-
-	client, _ := app.NewClientAndRenderer()
-
 	sa := string(cltest.MustReadFile(t, "testdata/hello_world_agreement.json"))
 	endAtISO8601 := EndAt.Format(time.RFC3339)
 	sa = strings.Replace(sa, "2019-10-19T22:17:19Z", endAtISO8601, 1)
@@ -196,6 +190,11 @@ func TestClient_CreateServiceAgreement(t *testing.T) {
 	for _, tt := range tests {
 		test := tt
 		t.Run(test.name, func(t *testing.T) {
+			app, cleanup := cltest.NewApplicationWithKey(t, cltest.LenientEthMock)
+			defer cleanup()
+			require.NoError(t, app.Start())
+
+			client, _ := app.NewClientAndRenderer()
 
 			set := flag.NewFlagSet("create", 0)
 			assert.NoError(t, set.Parse([]string{test.input}))
@@ -328,7 +327,7 @@ func TestClient_DestroyExternalInitiator_NotFound(t *testing.T) {
 }
 
 func TestClient_CreateJobSpec(t *testing.T) {
-	t.Parallel()
+	// DO NOT PARALLELIZE THIS TEST
 
 	app, cleanup := cltest.NewApplication(t, cltest.EthMockRegisterChainID)
 	defer cleanup()
@@ -349,6 +348,7 @@ func TestClient_CreateJobSpec(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			set := flag.NewFlagSet("create", 0)
 			set.Parse([]string{test.input})
@@ -406,12 +406,6 @@ func TestClient_CreateJobSpec_JSONAPIErrors(t *testing.T) {
 func TestClient_CreateJobRun(t *testing.T) {
 	t.Parallel()
 
-	app, cleanup := cltest.NewApplication(t, cltest.EthMockRegisterChainID)
-	defer cleanup()
-	require.NoError(t, app.Start())
-
-	client, _ := app.NewClientAndRenderer()
-
 	tests := []struct {
 		name    string
 		json    string
@@ -428,6 +422,12 @@ func TestClient_CreateJobRun(t *testing.T) {
 	for _, tt := range tests {
 		test := tt
 		t.Run(test.name, func(t *testing.T) {
+			app, cleanup := cltest.NewApplication(t, cltest.EthMockRegisterChainID)
+			defer cleanup()
+			require.NoError(t, app.Start())
+
+			client, _ := app.NewClientAndRenderer()
+
 			assert.Nil(t, app.Store.CreateJob(&test.jobSpec))
 
 			args := make([]string, 1)
@@ -455,12 +455,6 @@ func TestClient_CreateJobRun(t *testing.T) {
 func TestClient_CreateBridge(t *testing.T) {
 	t.Parallel()
 
-	app, cleanup := cltest.NewApplication(t, cltest.EthMockRegisterChainID)
-	defer cleanup()
-	require.NoError(t, app.Start())
-
-	client, _ := app.NewClientAndRenderer()
-
 	tests := []struct {
 		name    string
 		param   string
@@ -477,6 +471,11 @@ func TestClient_CreateBridge(t *testing.T) {
 	for _, tt := range tests {
 		test := tt
 		t.Run(test.name, func(t *testing.T) {
+			app, cleanup := cltest.NewApplication(t, cltest.EthMockRegisterChainID)
+			defer cleanup()
+			require.NoError(t, app.Start())
+
+			client, _ := app.NewClientAndRenderer()
 
 			set := flag.NewFlagSet("bridge", 0)
 			set.Parse([]string{test.param})
@@ -573,10 +572,6 @@ func TestClient_RemoveBridge(t *testing.T) {
 func TestClient_RemoteLogin(t *testing.T) {
 	t.Parallel()
 
-	app, cleanup := cltest.NewApplication(t, cltest.EthMockRegisterChainID)
-	defer cleanup()
-	require.NoError(t, app.Start())
-
 	tests := []struct {
 		name, file string
 		email, pwd string
@@ -589,7 +584,12 @@ func TestClient_RemoteLogin(t *testing.T) {
 		{"failure file w correct prompt", "/tmp/doesntexist", cltest.APIEmail, cltest.Password, true},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
+			app, cleanup := cltest.NewApplication(t, cltest.EthMockRegisterChainID)
+			defer cleanup()
+			require.NoError(t, app.Start())
+
 			enteredStrings := []string{test.email, test.pwd}
 			prompter := &cltest.MockCountingPrompter{EnteredStrings: enteredStrings}
 			client := app.NewAuthenticatingClient(prompter)

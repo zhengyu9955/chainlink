@@ -30,6 +30,7 @@ func TestApi_ParsePaginatedRequest(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			size, page, offset, err := ParsePaginatedRequest(test.sizeParam, test.pageParam)
 			if test.err {
@@ -107,6 +108,7 @@ func TestApi_NewPaginatedResponse(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			url, err := url.Parse(test.path)
 			assert.NoError(t, err)

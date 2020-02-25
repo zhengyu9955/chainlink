@@ -62,6 +62,7 @@ func TestValidateEIP55Address(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			_, err := NewEIP55Address(test.input)
 			valid := err == nil

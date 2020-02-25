@@ -86,6 +86,8 @@ func TestORM_Unscoped(t *testing.T) {
 }
 
 func TestORM_CreateExternalInitiator(t *testing.T) {
+	t.Parallel()
+
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 
@@ -100,6 +102,8 @@ func TestORM_CreateExternalInitiator(t *testing.T) {
 }
 
 func TestORM_DeleteExternalInitiator(t *testing.T) {
+	t.Parallel()
+
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 
@@ -922,6 +926,8 @@ func TestORM_CreateSession(t *testing.T) {
 }
 
 func TestORM_DeleteTransaction(t *testing.T) {
+	t.Parallel()
+
 	store, cleanup := cltest.NewStore(t)
 	_, err := store.KeyStore.NewAccount(cltest.Password)
 	require.NoError(t, err)
@@ -939,6 +945,8 @@ func TestORM_DeleteTransaction(t *testing.T) {
 }
 
 func TestORM_AllSyncEvents(t *testing.T) {
+	t.Parallel()
+
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 
@@ -972,6 +980,8 @@ func TestORM_AllSyncEvents(t *testing.T) {
 }
 
 func TestBulkDeleteRuns(t *testing.T) {
+	t.Parallel()
+
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 
@@ -1186,6 +1196,8 @@ func TestORM_DeduceDialect(t *testing.T) {
 }
 
 func TestORM_SyncDbKeyStoreToDisk(t *testing.T) {
+	t.Parallel()
+
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 	orm := store.ORM
@@ -1213,6 +1225,8 @@ func TestORM_SyncDbKeyStoreToDisk(t *testing.T) {
 }
 
 func TestORM_UpdateBridgeType(t *testing.T) {
+	t.Parallel()
+
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 
@@ -1252,6 +1266,8 @@ func isDirEmpty(t *testing.T, dir string) bool {
 }
 
 func TestORM_UnconfirmedTxAttempts(t *testing.T) {
+	t.Parallel()
+
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 
@@ -1345,6 +1361,8 @@ func TestORM_UnconfirmedTxAttempts(t *testing.T) {
 }
 
 func TestJobs_All(t *testing.T) {
+	t.Parallel()
+
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 
@@ -1376,6 +1394,8 @@ func TestJobs_All(t *testing.T) {
 }
 
 func TestJobs_ScopedInitiator(t *testing.T) {
+	t.Parallel()
+
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 
@@ -1403,6 +1423,8 @@ func TestJobs_ScopedInitiator(t *testing.T) {
 // TestJobs_SQLiteBatchSizeIntegrity verifies the BatchSize is safe for SQLite
 // to handle.  Problems were experienced earlier with a size of 1001.
 func TestJobs_SQLiteBatchSizeIntegrity(t *testing.T) {
+	t.Parallel()
+
 	store, cleanup := cltest.NewStore(t)
 	defer cleanup()
 

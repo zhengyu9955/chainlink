@@ -53,6 +53,7 @@ func TestNewMedianFetcherFromURLs_Happy(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var urls []*url.URL
 			for _, price := range test.prices {
@@ -170,6 +171,7 @@ func TestAdapterResponse_UnmarshalJSON_Happy(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var response adapterResponse
 			err := json.Unmarshal([]byte(test.content), &response)
@@ -210,6 +212,7 @@ func TestMedianFetcher_MajorityFetches(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			medianFetcher, err := newMedianFetcher(test.fetchers...)
 			require.NoError(t, err)
@@ -236,6 +239,7 @@ func TestMedianFetcher_MinorityErrors(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			medianFetcher, err := newMedianFetcher(test.fetchers...)
 			require.NoError(t, err)

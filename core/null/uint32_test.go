@@ -20,6 +20,7 @@ func TestUint32From(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(fmt.Sprintf("%d", test.input), func(t *testing.T) {
 			i := Uint32From(test.input)
 			assert.True(t, i.Valid)
@@ -37,6 +38,7 @@ func TestUnmarshalUint32_Valid(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var i Uint32
 			err := json.Unmarshal([]byte(test.input), &i)
@@ -56,6 +58,7 @@ func TestUnmarshalUint32_Invalid(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var i Uint32
 			err := json.Unmarshal([]byte(test.input), &i)
@@ -75,6 +78,7 @@ func TestUnmarshalUint32_Error(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var i Uint32
 			err := json.Unmarshal([]byte(test.input), &i)
@@ -114,6 +118,7 @@ func TestTextUnmarshalInt_Invalid(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var i Uint32
 			err := i.UnmarshalText([]byte(test.input))

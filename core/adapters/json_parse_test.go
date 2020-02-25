@@ -162,6 +162,7 @@ func TestJSON_UnmarshalJSON(t *testing.T) {
 		{"unclosed string errors", `{"path":"1.2}`, []string{}, true},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			a := adapters.JSONParse{}
 			err := json.Unmarshal([]byte(test.input), &a)

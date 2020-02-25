@@ -46,6 +46,7 @@ func TestNormalizedJSON(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			jsonBytes, err := json.Marshal(test.input)
 			assert.NoError(t, err)

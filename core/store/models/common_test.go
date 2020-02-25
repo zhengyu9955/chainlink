@@ -78,6 +78,7 @@ func TestJSON_Merge(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			j1 := cltest.JSONFromString(t, test.original)
 			j2 := cltest.JSONFromString(t, test.input)
@@ -113,6 +114,7 @@ func TestJSON_UnmarshalJSON(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var j models.JSON
 			err := json.Unmarshal([]byte(test.json), &j)
@@ -136,6 +138,7 @@ func TestJSON_ParseJSON(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			json, err := models.ParseJSON([]byte(test.in))
 			assert.Equal(t, test.want, json)
@@ -161,6 +164,7 @@ func TestJSON_Add(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			json := cltest.JSONFromString(t, `{"a":"1"}`)
 
@@ -184,6 +188,7 @@ func TestJSON_Delete(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			json := cltest.JSONFromString(t, `{"a":"1","b":2}`)
 
@@ -215,6 +220,7 @@ func TestJSON_CBOR(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			encoded, err := test.in.CBOR()
 			assert.NoError(t, err)
@@ -291,6 +297,7 @@ func TestAnyTime_UnmarshalJSON_Valid(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var actual models.AnyTime
 			err := json.Unmarshal([]byte(test.input), &actual)
@@ -316,6 +323,7 @@ func TestAnyTime_UnmarshalJSON_Null(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			var actual models.AnyTime
 			err := json.Unmarshal([]byte(test.input), &actual)
@@ -341,6 +349,7 @@ func TestAnyTime_MarshalJSON(t *testing.T) {
 		{"invalid", models.AnyTime{}, `null`},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			b, err := json.Marshal(&test.input)
 			assert.NoError(t, err)
@@ -362,6 +371,7 @@ func TestDuration_MarshalJSON(t *testing.T) {
 		{"one hour thirty minutes", models.Duration(time.Hour + 30*time.Minute), `"1h30m0s"`},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			b, err := json.Marshal(&test.input)
 			assert.NoError(t, err)

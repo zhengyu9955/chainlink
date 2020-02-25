@@ -28,6 +28,7 @@ func TestHead_NewHead(t *testing.T) {
 		{big.NewInt(0x10), "10"},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.want, func(t *testing.T) {
 			num := models.NewHead(test.input, cltest.NewHash())
 			assert.Equal(t, test.want, fmt.Sprintf("%x", num.ToInt()))
@@ -51,6 +52,7 @@ func TestHead_GreaterThan(t *testing.T) {
 		{"greater", cltest.Head(2), cltest.Head(1), true},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			assert.Equal(t, test.greater, test.left.GreaterThan(test.right))
 		})
@@ -68,6 +70,7 @@ func TestHead_NextInt(t *testing.T) {
 		{"one", cltest.Head(1), big.NewInt(2)},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			assert.Equal(t, test.want, test.bn.NextInt())
 		})

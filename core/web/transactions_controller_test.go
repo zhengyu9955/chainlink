@@ -76,7 +76,7 @@ func TestTransactionsController_Index_Error(t *testing.T) {
 }
 
 func TestTransactionsController_Show_Success(t *testing.T) {
-	t.Parallel()
+	// DO NOT PARALLELIZE THIS TEST
 
 	app, cleanup := cltest.NewApplicationWithKey(t, cltest.LenientEthMock)
 	defer cleanup()

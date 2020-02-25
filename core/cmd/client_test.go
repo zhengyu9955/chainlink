@@ -24,6 +24,7 @@ func TestTerminalCookieAuthenticator_AuthenticateWithoutSession(t *testing.T) {
 		{"correct", cltest.APIEmail, cltest.Password},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			config := orm.NewConfig()
 
@@ -44,11 +45,6 @@ func TestTerminalCookieAuthenticator_AuthenticateWithoutSession(t *testing.T) {
 func TestTerminalCookieAuthenticator_AuthenticateWithSession(t *testing.T) {
 	t.Parallel()
 
-	app, cleanup := cltest.NewApplication(t, cltest.EthMockRegisterChainID)
-	defer cleanup()
-	require.NoError(t, app.Start())
-	app.MustSeedUserSession()
-
 	tests := []struct {
 		name, email, pwd string
 		wantError        bool
@@ -59,7 +55,13 @@ func TestTerminalCookieAuthenticator_AuthenticateWithSession(t *testing.T) {
 		{"success", cltest.APIEmail, cltest.Password, false},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
+			app, cleanup := cltest.NewApplication(t, cltest.EthMockRegisterChainID)
+			defer cleanup()
+			require.NoError(t, app.Start())
+			app.MustSeedUserSession()
+
 			sr := models.SessionRequest{Email: test.email, Password: test.pwd}
 			store := &cmd.MemoryCookieStore{}
 			tca := cmd.NewSessionCookieAuthenticator(app.Config.Config, store)
@@ -100,6 +102,7 @@ func TestDiskCookieStore_Retrieve(t *testing.T) {
 		{"correct fixture", "../internal/fixtures", false},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			config.Set("ROOT", test.rootDir)
 			store := cmd.DiskCookieStore{Config: config}
@@ -130,6 +133,7 @@ func TestTerminalAPIInitializer_InitializeWithoutAPIUser(t *testing.T) {
 		{"not a terminal", []string{}, false, true},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			store, cleanup := cltest.NewStore(t)
 			defer cleanup()
@@ -185,6 +189,7 @@ func TestFileAPIInitializer_InitializeWithoutAPIUser(t *testing.T) {
 		{"incorrect file", "/tmp/doesnotexist", true},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			store, cleanup := cltest.NewStore(t)
 			defer cleanup()
@@ -207,12 +212,6 @@ func TestFileAPIInitializer_InitializeWithoutAPIUser(t *testing.T) {
 func TestFileAPIInitializer_InitializeWithExistingAPIUser(t *testing.T) {
 	t.Parallel()
 
-	store, cleanup := cltest.NewStore(t)
-	defer cleanup()
-
-	initialUser := cltest.MustUser(cltest.APIEmail, cltest.Password)
-	require.NoError(t, store.SaveUser(&initialUser))
-
 	tests := []struct {
 		name      string
 		file      string
@@ -223,7 +222,14 @@ func TestFileAPIInitializer_InitializeWithExistingAPIUser(t *testing.T) {
 		{"incorrect file", "/tmp/doesnotexist", true},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
+			store, cleanup := cltest.NewStore(t)
+			defer cleanup()
+
+			initialUser := cltest.MustUser(cltest.APIEmail, cltest.Password)
+			require.NoError(t, store.SaveUser(&initialUser))
+
 			tfi := cmd.NewFileAPIInitializer(test.file)
 			user, err := tfi.Initialize(store)
 			assert.NoError(t, err)
@@ -242,6 +248,7 @@ func TestPromptingSessionRequestBuilder(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.email, func(t *testing.T) {
 			enteredStrings := []string{test.email, test.pwd}
 			prompter := &cltest.MockCountingPrompter{EnteredStrings: enteredStrings}
@@ -269,6 +276,7 @@ func TestFileSessionRequestBuilder(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			sr, err := builder.Build(test.file)
 			assert.Equal(t, test.wantEmail, sr.Email)

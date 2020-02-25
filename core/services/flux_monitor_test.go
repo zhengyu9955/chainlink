@@ -454,6 +454,7 @@ func TestPollingDeviationChecker_RespondToNewRound_Ignore(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			log := cltest.LogFromFixture(t, "testdata/new_round_log.json")
 			log.Topics[models.NewRoundTopicRoundID] = common.BytesToHash(utils.EVMWordUint64(test.round))
@@ -527,6 +528,7 @@ func TestOutsideDeviation(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			actual := services.OutsideDeviation(test.curPrice, test.nextPrice, test.threshold)
 			assert.Equal(t, test.expectation, actual)
@@ -577,6 +579,7 @@ func TestExtractFeedURLs(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			initiatorParams := models.InitiatorParams{
 				Feeds: cltest.JSONFromString(t, test.in),

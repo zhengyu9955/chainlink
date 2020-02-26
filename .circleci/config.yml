@@ -70,6 +70,7 @@ jobs:
       - run: yarn setup:contracts
       - run: go test -v -p 3 -parallel 2 ./...
   rust:
+    working_directory: "/chainlink"
     docker:
       - image: smartcontract/builder:1.0.27-rust-1.10-test
     steps:

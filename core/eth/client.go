@@ -31,7 +31,7 @@ type Client interface {
 	GetEthBalance(address common.Address) (*assets.Eth, error)
 	GetERC20Balance(address common.Address, contractAddress common.Address) (*big.Int, error)
 	GetAggregatorPrice(address common.Address, precision int32) (decimal.Decimal, error)
-	GetAggregatorRound(address common.Address) (*big.Int, error)
+	GetAggregatorLatestRound(address common.Address) (*big.Int, error)
 	GetAggregatorTimeout(address common.Address) (*big.Int, error)
 	GetAggregatorTimedOutStatus(address common.Address, round *big.Int) (bool, error)
 	GetAggregatorLatestSubmission(aggregatorAddress common.Address, oracleAddress common.Address) (*big.Int, *big.Int, error)
@@ -174,8 +174,8 @@ func (client *CallerSubscriberClient) GetAggregatorPrice(address common.Address,
 	return raw.Div(precisionDivisor), nil
 }
 
-// GetAggregatorRound returns the latest round at the given address.
-func (client *CallerSubscriberClient) GetAggregatorRound(address common.Address) (*big.Int, error) {
+// GetAggregatorLatestRound returns the latest round at the given address.
+func (client *CallerSubscriberClient) GetAggregatorLatestRound(address common.Address) (*big.Int, error) {
 	aggregator, err := GetV6Contract(PrepaidAggregatorName)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get contract "+PrepaidAggregatorName)

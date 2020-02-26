@@ -85,6 +85,7 @@ jobs:
             - '/go/pkg/mod'
       - run: env
       - run: whoami
+      - run: pwd
       - run: ./tools/ci/rust_test
   geth-postgres:
     resource_class: 2xlarge

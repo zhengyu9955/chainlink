@@ -73,6 +73,9 @@ jobs:
     docker:
       - image: smartcontract/builder:1.0.27-rust-1.10-test
     steps:
+      - run: env
+      - run: whoami
+      - run: pwd
       - checkout
       - run: echo $CACHE_VERSION > cache.version
       - restore_cache:
@@ -83,9 +86,6 @@ jobs:
           key: go-mod-{{ checksum "go.sum" }}
           paths:
             - '/go/pkg/mod'
-      - run: env
-      - run: whoami
-      - run: pwd
       - run: ./tools/ci/rust_test
   geth-postgres:
     resource_class: 2xlarge

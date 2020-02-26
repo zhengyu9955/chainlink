@@ -1,4 +1,9 @@
-import { contract, helpers as h, matchers, setup } from '@chainlink/test-helpers'
+import {
+  contract,
+  helpers as h,
+  matchers,
+  setup,
+} from '@chainlink/test-helpers'
 import { assert } from 'chai'
 import { randomBytes } from 'crypto'
 import { ethers } from 'ethers'
@@ -1683,15 +1688,12 @@ describe('PrepaidAggregator', () => {
         .connect(personas.Carol)
         .addOracle(personas.Neil.address, personas.Neil.address, 1, 1, 0)
 
-      await aggregator
-        .connect(personas.Neil)
-        .updateAnswer(nextRound, answer)
+      await aggregator.connect(personas.Neil).updateAnswer(nextRound, answer)
       nextRound = nextRound + 1
 
       await aggregator.updateRequesterPermission(personas.Carol.address, true)
 
-      await aggregator
-        .connect(personas.Carol)
+      await aggregator.connect(personas.Carol)
     })
 
     it('announces a new round via log event', async () => {
@@ -1701,6 +1703,7 @@ describe('PrepaidAggregator', () => {
         receipt,
         aggregator.interface.events.NewRound,
       )
+      console.log(receipt)
 
       assert.equal('NewRound(uint256,address,uint256)', event.eventSignature)
       matchers.bigNum(nextRound, h.eventArgs(event).roundId)
@@ -1737,15 +1740,13 @@ describe('PrepaidAggregator', () => {
     })
   })
 
-  describe('#updateRequesterPermission', () => {
+  describe.only('#updateRequesterPermission', () => {
     beforeEach(async () => {
       await aggregator
         .connect(personas.Carol)
         .addOracle(personas.Neil.address, personas.Neil.address, 1, 1, 0)
 
-      await aggregator
-        .connect(personas.Neil)
-        .updateAnswer(nextRound, answer)
+      await aggregator.connect(personas.Neil).updateAnswer(nextRound, answer)
       nextRound = nextRound + 1
     })
 
@@ -1756,18 +1757,56 @@ describe('PrepaidAggregator', () => {
         await aggregator.connect(personas.Neil).startNewRound()
       })
 
+      it('emits a log announcing the update', async () => {
+        const tx = await aggregator.updateRequesterPermission(
+          personas.Neil.address,
+          true,
+        )
+        const receipt = await tx.wait()
+        const event = matchers.eventExists(
+          receipt,
+          aggregator.interface.events.RequesterPermissionSet,
+        )
+        const args = h.eventArgs(event)
+
+        assert.equal(args.requester, personas.Neil.address)
+        assert.equal(args.allowed, true)
+      })
+
       describe('when called by a the owner', () => {
         beforeEach(async () => {
-          await aggregator.updateRequesterPermission(personas.Neil.address, true)
+          await aggregator.updateRequesterPermission(
+            personas.Neil.address,
+            true,
+          )
         })
 
         it('does not allow the specified address to start new rounds', async () => {
-          await aggregator.updateRequesterPermission(personas.Neil.address, false)
+          await aggregator.updateRequesterPermission(
+            personas.Neil.address,
+            false,
+          )
 
           await matchers.evmRevert(
             aggregator.connect(personas.Neil).startNewRound(),
             'Only whitelisted requesters can call',
           )
+        })
+
+        it('emits a log announcing the update', async () => {
+          const tx = await aggregator.updateRequesterPermission(
+            personas.Neil.address,
+            false,
+          )
+          const receipt = await tx.wait()
+          const event = matchers.eventExists(
+            receipt,
+            aggregator.interface.events.RequesterPermissionSet,
+          )
+          const args = h.eventArgs(event)
+
+          assert.equal(args.requester, personas.Neil.address)
+          assert.equal(args.allowed, false)
         })
       })
     })
@@ -1775,7 +1814,9 @@ describe('PrepaidAggregator', () => {
     describe('when called by a the owner', () => {
       it('reverts', async () => {
         await matchers.evmRevert(
-          aggregator.connect(personas.Neil).updateRequesterPermission(personas.Neil.address, true),
+          aggregator
+            .connect(personas.Neil)
+            .updateRequesterPermission(personas.Neil.address, true),
           'Only callable by owner',
         )
 

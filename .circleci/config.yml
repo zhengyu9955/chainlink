@@ -83,7 +83,8 @@ jobs:
           key: go-mod-{{ checksum "go.sum" }}
           paths:
             - '/go/pkg/mod'
-      - run: ./tools/ci/rust_test
+      - run: env
+      - run: /chainlink/tools/ci/rust_test
   geth-postgres:
     resource_class: 2xlarge
     environment:
